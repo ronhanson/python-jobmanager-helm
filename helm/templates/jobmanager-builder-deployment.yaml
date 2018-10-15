@@ -1,0 +1,55 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "jobmanager.fullname" . }}-builder
+  labels:
+{{ include "jobmanager.labels" (dict "root" . "service" "builder") | indent 4}}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+{{ include "jobmanager.selectors" (dict "root" . "service" "builder") | indent 6}}
+  template:
+    metadata:
+      labels:
+{{ include "jobmanager.selectors" (dict "root" . "service" "builder") | indent 8}}
+    spec:
+      containers:
+      - image: {{ template "jobmanager.image" .Values.builder }}
+        imagePullPolicy: {{ .Values.builder.image.pullPolicy | quote }}
+        name: {{ template "jobmanager.fullname" . }}-builder
+        ports:
+        - containerPort: 5001
+        resources: {}
+        env:
+        - name: APP_NAME
+          value: {{ .Values.app_name | quote }}
+        - name: JOBMANAGER_BUILDER_DEBUG
+          value: {{ .Values.debug_mode | quote }}
+        - name: JOBMANAGER_BUILDER_HTTP_PORT
+          value: "5001"
+        - name: JOBMANAGER_BUILDER_VERBOSITY
+          value: {{ .Values.verbosity | quote }}
+        - name: JOBMANAGER_DATABASE_HOST
+          {{- if .Values.mongodb.enabled }}
+          value: "{{ template "jobmanager.fullname" . }}-mongodb.default.svc.cluster.local"
+          {{- else }}
+          value: {{ .Values.mongodb.host | quote }}
+          {{- end }}
+        - name: JOBMANAGER_DOCKER_REGISTRY_URL
+          {{- if .Values.registry.enabled }}
+          value: "{{ template "jobmanager.fullname" . }}-registry.default.svc.cluster.local"
+          {{- else }}
+          value: {{ .Values.registry.host | quote }}
+          {{- end }}
+        volumeMounts:
+        - name: dockersock
+          mountPath: "/var/run/docker.sock"
+      restartPolicy: Always
+      volumes:
+      - name: dockersock
+        hostPath:
+          path: {{ .Values.docker_sock_host_path }}
+status: {}

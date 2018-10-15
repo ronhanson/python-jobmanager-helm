@@ -1,0 +1,38 @@
+app_name: "CineCoder"
+verbosity: "DEBUG"
+debug_mode: true
+docker_sock_host_path: "/var/run/docker.sock"
+api:
+  image:
+    registry: localhost:5006
+    repository: jobmanager-api
+    tag: latest
+    pullPolicy: Always
+builder:
+  image:
+    registry: localhost:5006
+    repository: jobmanager-builder
+    tag: latest
+    pullPolicy: Always
+client:
+  image:
+    registry: localhost:5006
+    repository: jobmanager-client-coder
+    tag: latest
+    pullPolicy: Always
+mongodb:
+  enabled: true
+  storage: 1Gi
+  image:
+    registry: docker.io
+    repository: mongo
+    tag: 3.4
+    pullPolicy: IfNotPresent
+registry:
+  enabled: true
+  storage: 1Gi
+  image:
+    registry: docker.io
+    repository: registry
+    tag: 2
+    pullPolicy: IfNotPresent

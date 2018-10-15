@@ -1,0 +1,9 @@
+name: jobmanager
+description: Job Manager Infrastructure Helm Chart (based on generated files made via Kompose)
+version: 0.0.2
+keywords:
+  - jobmanager
+sources:
+  - "http://github.com/ronhanson/python-jobmanager-helm"
+home: "http://github.com/ronhanson/python-jobmanager-helm"
+icon: "http://cinecoder.net/static/images/logo.png"

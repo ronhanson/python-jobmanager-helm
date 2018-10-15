@@ -1,0 +1,43 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "jobmanager.fullname" . }}-api
+  labels:
+{{ include "jobmanager.labels" (dict "root" . "service" "api") | indent 4}}
+spec:
+  replicas: 1
+  strategy: {}
+  selector:
+    matchLabels:
+{{ include "jobmanager.selectors" (dict "root" . "service" "api") | indent 6}}
+  template:
+    metadata:
+      labels:
+{{ include "jobmanager.selectors" (dict "root" . "service" "api") | indent 8}}
+    spec:
+      restartPolicy: Always
+      containers:
+      - image: {{ template "jobmanager.image" .Values.api }}
+        imagePullPolicy: {{ .Values.api.image.pullPolicy | quote }}
+        name: {{ template "jobmanager.fullname" . }}-api
+        ports:
+        - containerPort: 5000
+        resources: {}
+        env:
+        - name: APP_NAME
+          value: {{ .Values.app_name | quote }}
+        - name: JOBMANAGER_API_DEBUG
+          value: {{ .Values.debug_mode | quote }}
+        - name: JOBMANAGER_API_HTTP_PORT
+          value: "5000"
+        - name: JOBMANAGER_API_IMPORTS
+          value: "jobmanager.common.example"
+        - name: JOBMANAGER_API_VERBOSITY
+          value: {{ .Values.verbosity | quote }}
+        - name: JOBMANAGER_DATABASE_HOST
+          {{- if .Values.mongodb.enabled }}
+          value: "{{ template "jobmanager.fullname" . }}-mongodb.default.svc.cluster.local"
+          {{- else }}
+          value: {{ .Values.mongodb.host | quote }}
+          {{- end }}
+status: {}

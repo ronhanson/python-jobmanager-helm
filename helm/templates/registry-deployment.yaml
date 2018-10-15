@@ -1,0 +1,35 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "jobmanager.fullname" . }}-registry
+  labels:
+{{ include "jobmanager.labels" (dict "root" . "service" "registry") | indent 4}}
+spec:
+  selector:
+{{ include "jobmanager.selectors" (dict "root" . "service" "registry") | indent 4}}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+{{ include "jobmanager.selectors" (dict "root" . "service" "registry") | indent 6}}
+  template:
+    metadata:
+      labels:
+{{ include "jobmanager.selectors" (dict "root" . "service" "registry") | indent 8}}
+    spec:
+      restartPolicy: Always
+      containers:
+      - image: {{ template "jobmanager.image" .Values.registry }}
+        imagePullPolicy: {{ .Values.registry.image.pullPolicy | quote }}
+        name: {{ template "jobmanager.fullname" . }}-registry
+        resources: {}
+        volumeMounts:
+        - mountPath: /var/lib/registry
+          name: {{ template "jobmanager.fullname" . }}-registry-claim0
+      volumes:
+      - name: {{ template "jobmanager.fullname" . }}-registry-claim0
+        persistentVolumeClaim:
+          claimName: {{ template "jobmanager.fullname" . }}-registry-claim0
+status: {}

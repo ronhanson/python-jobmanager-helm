@@ -1,0 +1,38 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "jobmanager.fullname" . }}-client
+  labels:
+{{ include "jobmanager.labels" (dict "root" . "service" "client") | indent 4}}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+{{ include "jobmanager.selectors" (dict "root" . "service" "client") | indent 6}}
+  template:
+    metadata:
+      labels:
+{{ include "jobmanager.selectors" (dict "root" . "service" "client") | indent 8}}
+    spec:
+      containers:
+      - image: {{ template "jobmanager.image" .Values.client }}
+        imagePullPolicy: {{ .Values.client.image.pullPolicy | quote }}
+        name: {{ template "jobmanager.fullname" . }}-client
+        resources: {}
+        env:
+        - name: JOBMANAGER_CLIENT_DEBUG
+          value: {{ .Values.debug_mode | quote }}
+        - name: JOBMANAGER_CLIENT_IMPORTS
+          value: "jobmanager.common.example"
+        - name: JOBMANAGER_CLIENT_VERBOSITY
+          value: {{ .Values.verbosity | quote }}
+        - name: JOBMANAGER_DATABASE_HOST
+          {{- if .Values.mongodb.enabled }}
+          value: "{{ template "jobmanager.fullname" . }}-mongodb.default.svc.cluster.local"
+          {{- else }}
+          value: {{ .Values.mongodb.host | quote }}
+          {{- end }}
+      restartPolicy: Always
+status: {}

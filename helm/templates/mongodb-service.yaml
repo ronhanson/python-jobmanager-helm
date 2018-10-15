@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "jobmanager.fullname" . }}-mongodb
+  labels:
+{{ include "jobmanager.labels" (dict "root" . "service" "mongodb") | indent 4}}
+spec:
+  selector:
+{{ include "jobmanager.selectors" (dict "root" . "service" "mongodb") | indent 4}}
+  type: ClusterIP
+  ports:
+  - name: "mongodb"
+    port: 27017
+    targetPort: 27017
+status:
+  loadBalancer: {}

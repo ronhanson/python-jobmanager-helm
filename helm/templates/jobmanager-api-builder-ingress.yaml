@@ -1,0 +1,19 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ template "jobmanager.fullname" . }}-api-builder-ingress
+#  annotations:
+#    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: localhost
+    http:
+      paths:
+      - path: /api
+        backend:
+          serviceName: {{ template "jobmanager.fullname" . }}-api
+          servicePort: 5000
+      - path: /builder
+        backend:
+          serviceName: {{ template "jobmanager.fullname" . }}-builder
+          servicePort: 5001
